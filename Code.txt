@@ -1,0 +1,1020 @@
+!
+iwight=1
+	*if,iwight,ne,0,then
+/RGB,INDEX,100,100,100, 0   
+/RGB,INDEX, 80, 80, 80,13   
+/RGB,INDEX, 60, 60, 60,14   
+/RGB,INDEX, 0, 0, 0,15  
+/REPLOT 
+	*endif
+!
+/PREP7
+!
+PI=4.0*ATAN(1.0)!задание числа pi
+!****
+*DIM,s,ARRAY,16
+
+s(1)=7.5!радиус
+s(2)=200/2!полудлина расчетной части
+s(3)=2! толщина
+s(4)=5!радиус гантельного перехода
+s(5)=215/2!полудлина рабочей части
+s(6)=15!радиус захватной части
+s(7)= s(5)+s(4)+20 !полудлина изделия
+s(8)=s(5)!начало измельчения
+s(9)=s(2)!равномерно разбитая область
+s(10)=s(8)!s(1)!*1.2!0.5*s(1)!размер области из которой удаляем элементы
+!*******************
+!stp=0.01
+stp=0.2
+istp=0
+rstp=20
+nstp=16
+ngr=0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+indpla=1!
+	*if,indpla,eq,1,then
+	s(3)=1
+	*endif
+indpl=1!indpl=0 ПНС indpl=1 ОСЗ indpl=2 ПД
+nmat=1
+matpoi=20 !количество точек задания диаграммы нагружения
+epsmax=3 ! макс деформация
+matnum=1
+!********************
+iref=3!переразбиение
+elr=s(1)/20
+el=elr*(2**iref)!
+dd=el/50
+!условие выполнения kill 
+indkil=1!0 - без убивств, 1 - есть убиенные элементы
+ncond=2
+*dim, cond, array, ncond
+cond(1)=92.8
+cond(2)=1.2
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!полигон
+*create,octa,,
+*get,nk,kp,0,num,maxd
+k,nk+1,arg2,arg3,0
+k,nk+2,arg4,arg5,0
+k,nk+3,arg6,arg7,0
+	*if,arg1,ge,4,then
+	k,nk+4,arg8,arg9,0
+	*endif
+	*if,arg1,ge,5,then
+	k,nk+5,ar10,ar11,0
+	*endif
+	*if,arg1,ge,6,then
+	k,nk+6,ar12,ar13,0
+	*endif
+	*if,arg1,ge,7,then
+	k,nk+7,ar14,ar15,0
+	*endif
+	*if,arg1,ge,8,then
+	k,nk+8,ar16,ar17,0
+	*endif
+	*if,arg1,eq,3,then
+	a,nk+1,nk+2,nk+3
+	*endif
+	*if,arg1,eq,4,then
+	a,nk+1,nk+2,nk+3,nk+4
+	*endif
+	*if,arg1,eq,5,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5
+	*endif
+	*if,arg1,eq,6,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5,nk+6
+	*endif
+	*if,arg1,eq,7,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5,nk+6,nk+7
+	*endif
+	*if,arg1,eq,8,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5,nk+6,nk+7,nk+8
+	*endif
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  
+!резак
+*create,knifev
+	*if,arg1,eq,1,then
+	*GET,narea,area,0,NUM,MIN
+	allsel,all
+	asba,all,narea,,delete,delete
+	*else
+	*GET,narea,volu,0,NUM,MIN
+	allsel,all
+	vsbv,all,narea,,delete,delete
+	*endif
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!полигон объемный octa
+!arg 1 - число углов, arg2 - толщина по z, может быть полигон, гексагон и т.д. т.е. от 3 до 8
+*create,octav,,
+	*if,indpla,ne,1,and,arg2,ne,0,then
+	asel,none
+	vsel,none
+	*endif
+*get,nk,kp,0,num,maxd
+k,nk+1,arg3,arg4,0
+k,nk+2,arg5,arg6,0
+k,nk+3,arg7,arg8,0
+	*if,arg1,ge,4,then
+	k,nk+4,arg9,ar10,0
+	*endif
+	*if,arg1,ge,5,then
+	k,nk+5,ar11,ar12,0
+	*endif
+	*if,arg1,ge,6,then
+	k,nk+6,ar13,ar14,0
+	*endif
+	*if,arg1,ge,7,then
+	k,nk+7,ar15,ar16,0
+	*endif
+	*if,arg1,ge,8,then
+	k,nk+8,ar17,ar18,0
+	*endif
+	*if,arg1,eq,3,then
+	a,nk+1,nk+2,nk+3
+	*endif
+	*if,arg1,eq,4,then
+	a,nk+1,nk+2,nk+3,nk+4
+	*endif
+	*if,arg1,eq,5,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5
+	*endif
+	*if,arg1,eq,6,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5,nk+6
+	*endif
+	*if,arg1,eq,7,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5,nk+6,nk+7
+	*endif
+	*if,arg1,eq,8,then
+	a,nk+1,nk+2,nk+3,nk+4,nk+5,nk+6,nk+7,nk+8
+	*endif
+	*if,indpla,ne,1,and,arg2,ne,0,then
+	*GET,narea,area,0,NUM,MIN
+	VOFFST,narea,arg2, ,  
+	*endif
+*end
+!
+!рукописный аналог cyl4
+*create,ccyl4,,
+!cyl4,centx*ixy(j,1),0,rad,0,rad+hk,hang,0		
+!            a1               a2 a3  4      a5     a6   a7
+PI=4.0*ATAN(1.0)
+	*if,indpla,ne,1,and,arg7,ne,0,then
+	asel,none
+	vsel,none
+	*endif
+*get,nk,kp,0,num,maxd
+k,nk+1,arg1,arg2,0
+a_g=pi/180*arg4
+k,nk+2,arg1+arg3*cos(a_g),arg2+arg3*sin(a_g),0
+k,nk+3,arg1+arg5*cos(a_g),arg2+arg5*sin(a_g),0
+a_g=pi/180*arg6
+k,nk+4,arg1+arg5*cos(a_g),arg2+arg5*sin(a_g),0
+k,nk+5,arg1+arg3*cos(a_g),arg2+arg3*sin(a_g),0
+lsel,none
+l,nk+2,nk+3
+*get,nl1,line,0,num,min
+lsel,none
+larc,nk+3,nk+4,nk+1,arg5
+*get,nl2,line,0,num,min
+lsel,none
+l,nk+4,nk+5
+*get,nl3,line,0,num,min
+lsel,none
+larc,nk+5,nk+2,nk+1,arg3
+*get,nl4,line,0,num,min
+lsel,all
+al,nl1,nl2,nl3,nl4
+	*if,indpla,ne,1,and,arg7,ne,0,then
+	*GET,narea,area,0,NUM,MIN
+	VOFFST,narea,arg7, ,  
+	*endif
+*end
+!*************************  
+!вырезать что-то из того, что мы до этого нарисовали
+*create,knifev!arg1- это indpla(т.е.объемная или плоская задача)
+	*if,arg1,eq,1,then
+	*GET,narea,area,0,NUM,MIN!выбираем area
+	allsel,all
+	asba,all,narea,,delete,delete!вырезаем выбранную area
+	*else
+	*GET,narea,volu,0,NUM,MIN!выбираем volu
+	allsel,all
+	vsbv,all,narea,,delete,delete!вырезаем выбранную volu
+	*endif
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!резак прямоугольный
+*create,knirec
+asel,none
+rectan,arg1,arg2,arg3,arg4
+*use,knifev,indpla
+*end
+!
+*create,knioct
+asel,none
+*use,octav,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,ar10
+	*if,arg2,eq,0,then
+	ind_pla=1
+	*else
+	ind_pla=2
+	*endif
+*use,knifev,ind_pla
+*end
+!резак круглый
+*create,knicyl
+asel,none
+cyl4,arg1,arg2,arg3,arg4,arg5,arg6,arg7
+	*if,arg7,eq,0,then
+	ind_pla=1
+	*else
+	ind_pla=2
+	*endif
+*use,knifev,ind_pla
+*end
+!
+*create,kniccy
+asel,none
+*use,ccyl4,arg1,arg2,arg3,arg4,arg5,arg6,arg7
+	*if,arg7,eq,0,then
+	ind_pla=1
+	*else
+	ind_pla=2
+	*endif
+*use,knifev,ind_pla
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!******************
+!вытяжка плоской фигуры на arg1
+*create, artovo
+*if, indpla,ne,1,then
+*get,narea,area,0,count !считаем area
+*DIM,nareaa,ARRAY,narea !создаем массив
+	*do,i,1,narea,1
+		*if,i,eq,1,then
+		*GET,nareaa(1),area,0,NUM,MIN!выбор мин по номеру area
+		*else
+		*GET,nareaa(i),area,nareaa(i-1),NXTH!!выбор след по номеру area
+		*endif
+	*enddo
+	*do,i,1,narea,1
+		VOFFST,nareaa(i),arg1, ,!команда вытяжки  
+	*enddo
+	allsel,all
+*endif
+*end
+!!!!!!!!!!!!!!!!!!!!!!
+!сетка
+*create,avmesh
+size=arg1
+	*if,indpla,eq,1,then
+		*if,size,gt,s(1)/4,then
+		size=s(1)/4
+		*endif
+	*else
+		*if,size,gt,min(s(1)/8,s(3)/4),then
+		size=min(s(1)/8,s(3)/4)
+		*endif
+	*endif
+ESIZE,size,0,
+	*if,indpla,eq,1,then
+	aMESH,ALL
+	*else
+	VMESH,ALL
+	*endif
+*end
+!
+!реальныя координаты узла
+*dim,reacn,array,3! x, y, и z реальныя координаты узла
+*create,rcoorn!arg1 - номер узла, arg2 - indpla, arg3 - 0 - prep, 1- post
+	*do,i_r,1,3,1
+	reacn(i_r)=0
+	*enddo
+	*if,arg3,ne,0,then
+	*get,reacn(1),node,arg1,u,x
+	*get,reacn(2),node,arg1,u,y
+		*if,arg2,ne,1,then
+		*get,reacn(3),node,arg1,u,z
+		*endif
+	*endif
+reacn(1)=nx(arg1)+reacn(1)
+reacn(2)=ny(arg1)+reacn(2)
+reacn(3)=nz(arg1)+reacn(3)
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!построение образца
+	*if,s(1),ge,s(6),then
+!создание прямоугольника
+	s(1)=s(6)
+*use, octav, 4, 0, 0, 0, s(6), 0, s(6), s(2), 0, s(2)
+*use, octav, 4, 0, 0, s(2), s(6), s(2), s(6), s(7), 0, s(7)
+	*else
+!создание прямоугольника
+	s6=5*s(6)
+*use, octav, 4, 0, 0, 0, s6, 0, s6, s(2), 0, s(2)
+*use, octav, 4, 0, 0, s(2), s6, s(2), s6, s(7), 0, s(7)
+!вырезание окружности
+*use,knicyl,s(1)+s(4),s(5),0,90,s(4),180
+!вырезание прямоугольника
+*use,knioct,4,0, s(1),0, s6,0,s6,s(5),s(1),s(5)
+*use,knioct,4,0, s(1)+s(4),s(5), s6,s(5),s6,s(5)+s(4),s(1)+s(4),s(5)+s(4)
+*use,knioct,4,0, s(6),0, s6,0,s6,s(7),s(6),s(7)
+	*endif
+aglue, all
+!!!!!!!!!!!
+
+*use,artovo, s(3)
+
+*if, indpla, ne, 1, then
+     vglue, all
+*endif
+!***************
+!задание материалов 
+
+!********материал по точкам**********
+
+*dim,p,array,matpoi,2
+!*******
+*if, matnum, eq, 1, then
+!matnum=1
+p(1,2)=351
+p(2,2)=419.5606
+p(3,2)=436.738
+p(4,2)=432.6806
+p(5,2)=438.3743
+p(6,2)=438.936
+p(7,2)=438.5153
+p(8,2)=437.2685
+p(9,2)=475.0004
+p(10,2)=511.9091
+p(11,2)=546.3794
+p(12,2)=563.1202
+p(13,2)=582.1719
+p(14,2)=598.6993
+p(15,2)=611.3826
+!******
+p(1,1)=0.001755
+p(2,1)=2.487587E-3
+p(3,1)=0.0027462
+p(4,1)=4.70518E-3
+p(5,1)=7.282597E-3
+p(6,1)=9.74603E-3
+p(7,1)=1.231088E-2
+p(8,1)=1.535831E-2
+p(9,1)=2.193769E-2
+p(10,1)=3.489362E-2
+p(11,1)=5.184199E-2
+p(12,1)=6.257296E-2
+p(13,1)=7.983144E-2
+p(14,1)=0.1005301
+p(15,1)=0.1260322
+npoi=15
+a=404.4
+b=0.1
+*else
+!matnum=2
+p(1,2)=723.06
+p(2,2)=784.6901
+p(3,2)=841.314
+p(4,2)=886.1787
+p(5,2)=912.1758
+p(6,2)=925.756
+p(7,2)=934.6591
+p(8,2)=951.5115
+p(9,2)=977.5518
+p(10,2)=1010.53
+p(11,2)=1026.919
+p(12,2)=1036.24
+p(13,2)=1044.488
+!******
+p(1,1)=3.6153E-3
+p(2,1)=4.27092E-3
+p(3,1)=4.744342E-3
+p(4,1)=5.690516E-3
+p(5,1)=7.344168E-3
+p(6,1)=8.75941E-3
+p(7,1)=1.299316E-2
+p(8,1)=2.024286E-2
+p(9,1)=3.389714E-2
+p(10,1)=5.098942E-2
+p(11,1)=6.378692E-2
+p(12,1)=7.222849E-2
+p(13,1)=8.191475E-2
+
+npoi=13
+a=835.5
+b=0.075
+
+*endif
+!***далее материал по функциии***********
+mpoi=matpoi-npoi! число оставшихся точек
+eps1=(epsmax-p(npoi,1))/mpoi!шаг задания точек
+	*DO,i,npoi+1,matpoi,1 
+		p(i,1)=p(i-1)+eps1
+		p(i,2)=a*((p(i,1)*200000/a)**b)
+	*ENDDO
+!!!!!!!!!!!!!
+!!!!!!!!!!!!!
+*DIM,PROMAT,ARRAY,NMAT,2
+PROMAT(1,1)=20000
+PROMAT(1,2)=.3
+			*DO,NUMMAT,1,NMAT,1 
+MPTEMP,,,,,,,,
+MPTEMP,1,0
+MPDATA,EX,          NUMMAT,,PROMAT(NUMMAT,1)
+MPDATA,PRXY,          NUMMAT,,PROMAT(NUMMAT,2)
+!TB,MISO,          NUMMAT,1,MATPOI,0
+TB,kinh,          NUMMAT,1,MATPOI,0
+TBTEMP,0
+	*DO,I,1,MATPOI,1
+	TBPT,,p(i,1),p(i,2)/10
+	*ENDDO
+			*ENDDO
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!elastic MAT nmat+1
+promat31=2e4
+promat32=0.3
+MPDATA,EX,NMAT+1,,promat(1,1)
+MPDATA,PRXY,NMAT+1,,promat(1,2)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	*if,indpla,eq,1,then
+	ET,1,PLANE183   
+KEYOPT,1,1,1
+!KEYOPT,1,3,2
+KEYOPT,1,3,indpl
+KEYOPT,1,6,0
+KEYOPT,1,10,0
+	*else
+	ET,1,SOLID187
+	indpl=2
+	*endif
+!!!!!!!!!!!!!!!
+!****************создание сетки****
+allsel,all
+!	*if,iref,ne,0,then
+	*if,indpla,eq,1,then
+		asel, s, loc, y,0,s(2)
+		*else
+		vsel, s, loc, y,0,s(2)
+		*endif
+	*use, avmesh, el
+allsel,all
+*use, avmesh, 2*el
+!	*else
+!*use, avmesh, el
+!	*endif
+save
+!****************переразбиение**************
+		*if,iref,ne,0,then
+nref=1
+h=(s(8)-s(9))/iref!шаг переразбиения
+hy=s(8)-h!начало переразбиения
+	*do, i, 1, iref, 1
+		CM,_Y,NODE  
+		!NSEL, , , ,P51X 
+		allsel, all
+		nsel, s, loc, y, -dd, hy
+		CM,_Y1,NODE 
+		CMSEL,S,_Y  
+		CMDELE,_Y   
+		!*  
+		!*  
+		NREFINE,_Y1, , ,nref,1,1,1 
+		CMDELE,_Y1  
+		!* 
+		dd=dd/2
+		hy=hy-h
+	*enddo
+		*endif
+!************Loads*************
+!reaction
+allsel,all
+!случай растяжения
+allsel,all
+nsel, s, loc, y, s(7)-dd, s(7)+dd
+*get,nr,node,0,count
+*dim, nrc, array, nr
+	*do,i,1,nr,1
+		*if,i,eq,1,then
+		*get,nrc(i),node,0,num,min
+		*else
+		*get,nrc(i),node, NRC(I-1),NXTH
+		*endif
+	*enddo
+allsel,all
+
+
+!*************задаем нагрузку на растяжение
+
+*create,pddef 
+pd=0
+	*do,i,1,nr,1
+	     *get,dp,node,nrc(i),rf,fy
+	      pd=pd+dp
+	*enddo
+*end
+!************
+allsel,all
+!выбираем область рассмотрения из которой будем удалять элементы сетки
+nsel, s, loc,y, -dd, s(10)+dd
+!выьираем элементы в этой области 
+esln, s, 0
+*get, nkill, elem, 0,count
+nn=4+2*ncond
+*dim,kill, array,nkill,nn!1 - нумер, 2 - этап убивства, 3 - условие убивства, 4 - пластическая деформация, 
+!5- интеграл условия разрушения, 6-предыдущее значение подытегральной функции и далее идут пары, как 5 и 6
+	*do,i,1,nkill,1
+		*if,i,eq,1,then
+			*GET,kill(i,1),elem,0,NUM,MIN!выбор мин по номеру el
+			*else
+			*GET,kill(i,1),elem,kill(i-1,1),NXTH!!выбор след по номеру el
+		*endif
+	*do, j, 2, nn
+		kill(i,j)=0
+	*enddo
+	*enddo
+
+!******убиваем элементы *************
+*create, killer
+			*if,indkil,eq,1,then
+allsel,all
+	*do, i, 1, nkill, 1
+	*if, kill(i,2), eq, 0, cycle
+		ekill,kill(i,1)
+	*enddo
+			*endif
+*end
+
+allsel,all
+nsel,s,loc,y,-dd,dd
+nsle,r,corner
+*get,nsopl,node,0,count
+*dim,nsop,array,nsopl
+	*do,i,1,nsopl,1
+		*if,i,eq,1,then
+		*GET,nsop(i),node,0,NUM,MIN!выбор мин по номеру
+		*else
+		*GET,nsop(i),node,nsop(i-1),NXTH!!выбор след по номеру
+		*endif
+	*enddo
+allsel,all
+!
+*create,soplja
+nsoplk=0
+	*do,ii,1,nsopl,1
+	allsel,all
+	nsel,s,node,,nsop(ii)
+	esln,s,0
+	ESEL,r,LIVE
+	*get,nh,elem,0,count
+		*if,nh,eq,1,then
+		*GET,nhe,elem,0,NUM,MIN
+		ekill,nhe
+		nsoplk=nsoplk+1
+		*endif
+	*enddo
+allsel,all
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!******проверка выполнение предыдущей программы
+*dim, ncrack, array, ncond
+*create, judge
+			*if,indkil,eq,1,then
+inp=1 !Приращиваем или не приращиваем нагрузку ( шаг умножаем на inp) 
+	*do, i, 1, ncond, 1
+	ncrack(i)=0 !Обнуляется каждый ра, иначе будет зранить предыдущие результаты
+	*enddo
+!ETABLE,strcat('v',CHRVAL(jj)),c_kill(jj,1),c_kill(jj,2)!название таблиц
+ETABLE,v1,eppl,eqv!epsi
+ETABLE,v2,s,eqv!si
+ETABLE,v3,s,1!s1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!*dim,kill, array,nkill,nn!1 - нумер, 2 - этап убивства, 3 - условие убивства, 4 - пластическая деформация, 
+!5- интеграл условия разрушения, 6-предыдущее значение подытегральной функции и далее идут пары, как 5 и 6
+
+*do, i, 1, nkill, 1
+*if, kill(i,2), ne, 0, cycle! элемент уже помер
+!*get,epi,node,kill(i,1),eppl,eqv
+*get,epi,etab,1,elem,kill(i,1) !вызвали epsi
+*if,epi,eq, 0, cycle! нет пластики
+!
+de=epi-kill(i,4)
+kill(i,4)=epi
+!*********проверка условий***********
+*get,si,etab,2,elem,kill(i,1) !вызвали si
+	!*get,si,node,kill(i,1),s,eqv
+		*if, si, ne, 0, then
+                       *get,s1,etab,3,elem,kill(i,1) !вызвали s1
+			!*get,s1,node,kill(i,1),s,1
+			h=s1/si	
+!*********проверка первого условия**********
+			*if, h, ge, cond(1), then
+!			*if, h, ge, cond(1),and,si,ge,p(1,2), then????????????????
+				kill(i,3)=1
+				kill(i,2)=LL
+				inp=0
+				ncrack(1)=ncrack(1)+1
+			*endif
+!*********проверка второго условия**********
+		kill(i,7)=((h+kill(i,8))/2)*de+kill(i,7) !интегрирование методом трапеции
+		kill(i,8)=h
+			*if, kill(i,7), ge, cond(2), then
+			kill(i,3)=2
+			kill(i,2)=LL
+			inp=0
+			ncrack(2)=ncrack(2)+1
+			*endif
+!***********************************
+		*endif!ибо первые два условия неприменимы без si
+!***********************************
+*enddo
+	*if,istep,eq,0,and,inp,eq,0,then
+	istep=1
+	stp=stp/10
+	*endif
+			*endif
+*end
+!
+!***********************Запись результатов расчетов********
+*dim,vt,array,1,10
+*create,vt0
+	*do,ivt,1,10,1
+	vt(1,ivt)=0
+	*enddo
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*create,diag
+/input,vt0
+ *get,vt(1,1),node,node(0,s(2),0),u,y
+vt(1,1)=vt(1,1)*2
+vt(1,2)=pd
+vt(1,10)=LL
+	*if,indpla,eq,1,and,indpl,eq,2,then
+		vt(1,2)=vt(1,2)*2
+	*endif
+
+	*if,indpla,ne,1,then
+		vt(1,2)=vt(1,2)*4
+	*endif
+	*do,i,1,ncond,1
+	vt(1,2+i)=ncrack(i)
+	*enddo
+vt(1,2+ncond+1)=nsoplk
+!psi
+*use, rcoorn,node(s(1),0,s(3)), indpla, 1
+	*if,indpla,eq,1,and,indpl,eq,1,then		
+	hf=(reacn(1)**2)
+	hf0=s(1)**2
+	*else
+	hf=reacn(1)*reacn(3)
+	hf0=s(1)*s(3)
+	*endif
+vt(1,8)=abs((hf0-hf)/hf0)
+vt(1,9)=dsp
+*CFOPEN,diag,myz,,APPEND
+*VWRITE,vt(1,1),' ',vt(1,2),' ',vt(1,3),' ',vt(1,4),' ',vt(1,5),' ',vt(1,6),' ',vt(1,7),' ',vt(1,8),' ',vt(1,9),' ',vt(1,10),' ',vt(1,11),' ',vt(1,12)
+(10(G10.4,a1))
+*cfclos
+*end
+
+!*********Задаем материалы 
+allsel,all
+MPCHG,1,ALL,
+!*********Граничные условия****
+allsel,all
+nsel, s, loc, y, -dd, +dd
+d,all,uy,0
+allsel,all
+*if, indpla, le, 2, then
+	nsel, s, loc, x, -dd, dd
+	d,all,ux,0
+*endif
+allsel,all
+*if, indpla, eq, 2, then
+	nsel, s, loc, z, -dd, dd
+	d,all,uz,0
+*endif
+FINISH
+!
+!*******************перешли в solution
+/SOL
+!?
+ANTYPE,0
+NLGEOM,1
+!?
+!nropt,full
+solcontrol,on
+!nsubst,10
+!eqslv,pcg,1e-4,3.0
+!eqslv,iter,1e-4,3.0
+!!!!!!!!!!!!
+rescontrol,,last,last
+CNVTOL,F, ,0.001,1, ,   !установка условий сходимости L1
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!  
+!!!!!!!!!!!
+LLmax=999
+dsp=0.0
+inp=1
+istep=0
+pd0=0
+pd1=0
+!!!!!!!!!!!!!!!!!!!
+!
+!начало счета
+*DO,LL,1,LLmax,1
+!*DO,LL,187,LLmax,1
+	FINISH
+!
+	/SOL
+! Строчки, которые позволяют восстанавливливать данные после выхода в постпроцессор
+	*if,LL,gt,1,then
+		parsav,all,KPAR
+		antype,,rest,
+		parres,,KPAR
+	*endif
+	allsel,all
+!************здесь расписываем, как грузим ***********
+	dsp=dsp+stp*inp
+	*do,i,1,nr,1
+	
+!*************Грузим для расстяжения**********
+	d,nrc(i),uy,dsp
+			
+	*enddo
+!******запускаем подпрограмму убийства******
+	/input,killer
+	/input,soplja
+!***********************
+	ALLSEL,ALL
+	solve
+	*GET,INDEND,ACTIVE,0,SOLU,CNVG
+	*IF,INDEND,EQ,0,EXIT
+!*********************
+	FINISH
+	/POST1
+	SET,LAST
+!******************
+	/input,judge !определяем узлы, которые должны помереть 
+	/input,pddef !определяем нагрузку
+	/input,diag  !записываем файл
+		*if,LL,eq,1,then
+		pd0=pd
+		*endif
+	save
+	*if,pd,eq,0,exit
+	*if,pd0/pd,gt,54,exit	
+!ускоритель
+		*if,istp,eq,0,and,pd1,gt,pd,then
+		ngr=ngr+1
+			*if,ngr,gt,nstp,then
+			stp=stp/rstp
+			istp=1
+			*endif
+		*endif
+	pd1=pd
+!
+*ENDDO
+!нечто решилось
+save
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+allsel,all
+FINISH
+/SOL
+EALIVE,ALL ! оживление
+!!!!!!!!!!!!!!!!!!!!!!
+save! метить до этого оператора
+!
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+FINISH
+/POST1
+!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+!постпроцессорныя экзерсисы
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+allsel,all
+nlin=8
+!создание массива для дальнейшего построения эпюр
+*dim, ng, array, nlin,4
+ng(1,1)=0
+ng(1,2)=s(2)
+ng(1,3)=0
+ng(2,1)=s(1)
+ng(2,2)=s(2)
+ng(2,3)=0
+ng(3,1)=0
+ng(3,2)=s(2)
+ng(3,3)=s(3)
+ng(4,1)=s(1)
+ng(4,2)=s(2)
+ng(4,3)=s(3)
+ng(5,1)=0
+ng(5,2)=0
+ng(5,3)=s(3)
+ng(6,1)=s(1)
+ng(6,2)=0
+ng(6,3)=s(2)
+ng(7,1)=s(1)
+ng(7,2)=0
+ng(7,3)=0
+ng(8,1)=s(1)
+ng(8,2)=0
+ng(8,3)=s(3)
+!
+!*******определение максимального числа узлов******
+	*do,i,1,nlin,1
+       
+    allsel,all
+		*if,7,gt,i,then
+	        	nsel,s,loc,x,ng(i,1)-dd,ng(i,1)+dd 
+		*else
+	        	nsel,s,loc,x,-dd,ng(i,1)+dd 
+		*endif
+		*if,i,ge,5,and,6,ge,i,then
+	        	nsel,r,loc,z,-dd,ng(i,3)+dd 
+		*else
+	       		nsel,r,loc,z,ng(i,3)-dd,ng(i,3)+dd 
+		*endif
+        nsel,r,loc,y,-dd,ng(i,2)+dd 
+	nsle,r,corner
+	 *get,ng(i,4),node,0,count	
+	*enddo
+ngm=ng(1,4)
+	*do,i,1,nlin,1
+	ngm=max(ngm,ng(i,4))
+	*enddo
+!
+*dim, gg, array,nlin, ngm
+	*do,i,1,nlin,1
+           allsel,all
+		*if,7,gt,i,then
+	        nsel,s,loc,x,ng(i,1)-dd,ng(i,1)+dd 
+		*else
+	        nsel,s,loc,x,-dd,ng(i,1)+dd 
+		*endif
+		*if,i,ge,5,and,6,ge,i,then
+	        nsel,r,loc,z,-dd,ng(i,3)+dd 
+		*else
+	       	nsel,r,loc,z,ng(i,3)-dd,ng(i,3)+dd 
+		*endif
+        nsel,r,loc,y,-dd,ng(i,2)+dd 
+	nsle,r,corner
+/replot
+		*do,j,1,ngm,1
+			*get,nh,node,0,count
+			*if,nh,eq,0,exit
+			gg(i,j)=node(0,0,0)
+			nsel,u,node,,gg(i,j)
+		*enddo
+			ng(i,4)=j-1
+	*enddo
+allsel,all
+!
+!!!!!!!!!!!!!!!!!!!!
+*dim,chl,char,1 !создание текстового массива, char - переменная chl является текстом 
+!создание имени
+*create,ch3
+	*if,10,gt,arg1,then
+		chl(1)=strcat('00',CHRVAL(arg1))! CHRVAL- превращает число в текст, strcat - соединяет два текста в один 
+	*endif
+	*if,arg1,ge,10,and,99,ge,arg1,then
+		chl(1)=strcat('0',CHRVAL(arg1))
+	*endif
+	*if,arg1,ge,100,then
+		chl(1)=CHRVAL(arg1)
+	*endif
+*end	
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!******построение графиков по цепочке узлов******
+*create,epur
+!arg1 - номер линии, arg2 - номер этапа
+!create,rcoorn!arg1 - номер узла, arg2 - indpla, arg3 -,  0 - prep, 1- post
+/input,vt0
+set, arg2, last
+allsel,all
+*use, ch3, arg2
+	*do, i, 1, ng(arg1, 4), 1
+		*CFOPEN,strcat(chrval(arg1),chl(1)),myz,,APPEND
+		*use, rcoorn, gg(arg1, i), indpla, 1
+		vt(1,1)=reacn(1) !истинная х координата 
+		vt(1,2)=reacn(2) !истинная у координата 
+		vt(1,3)=reacn(3) !истинная z координата +
+			*if,i,ne,1,then
+			vt(1,4)=(reacn(2)-ny(gg (arg1, i)))/ny(gg (arg1, i))   !относительное удлинение 
+			*endif
+			*if,indpla,eq,1,and,indpl,eq,1,then		
+			hf=(reacn(1)**2)
+			hf0=s(1)**2
+			*else
+			hf=reacn(1)*reacn(3)
+			hf0=s(1)*s(3)
+			*endif
+		vt(1,5)=abs((hf0-hf)/hf0) !Пси
+*VWRITE,vt(1,1),' ',vt(1,2),' ',vt(1,3),' ',vt(1,4),' ',vt(1,5),' ',vt(1,6),' ',vt(1,7),' ',vt(1,8),' ',vt(1,9),' ',vt(1,10),' ',vt(1,11),' ',vt(1,12)
+(10(G10.4,a1))
+		*cfclos
+		*enddo
+/replot
+*end
+!*******
+!*use, epur, 2, 557 !построение контуров с любыми параметрами (номер линии, номер этапа)
+
+!******построение графиков по произвольным сечениям (path operations)******
+*create,epu!npoi
+/input,vt0
+	*do,jjh,1,arg1
+	*CFOPEN,strcat('e',chl(1)),myz,,APPEND
+	*SET,vt(1,1),INTAR_(jjh,4) !x
+	*SET,vt(1,2),INTAR_(jjh,5) !sx
+	*SET,vt(1,3),INTAR_(jjh,6)  !sy 
+	*SET,vt(1,4),INTAR_(jjh,7)  !sz
+	*SET,vt(1,5),INTAR_(jjh,8)  !si
+	*SET,vt(1,6),INTAR_(jjh,14)  !s1/si
+	*SET,vt(1,7),INTAR_(jjh,9)  !ex
+	*SET,vt(1,8),INTAR_(jjh,10)  !ey
+	*SET,vt(1,9),INTAR_(jjh,11)  !ez
+	*SET,vt(1,10),INTAR_(jjh,12)  !ei
+*VWRITE,vt(1,1),' ',vt(1,2),' ',vt(1,3),' ',vt(1,4),' ',vt(1,5),' ',vt(1,6),' ',vt(1,7),' ',vt(1,8),' ',vt(1,9),' ',vt(1,10)
+(10(G10.4,a1))
+	*cfclos
+	*enddo
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!эпюры
+*create,s1si! порядок вызова параметров LL, npoi,x1,y1,z1,x2,y2,z2
+set,arg1,last
+*use, ch3, arg1
+allsel,all
+PATH,0,2,arg2-1,arg2-1
+!PATH,0,2,npoi,npoi
+	PPATH,1,,arg3,arg4,arg5
+	PPATH,2,,arg6,arg7,arg8
+	PATH, 0
+AVPRIN,0, , 
+PDEF,sx,s,x,AVG 
+PDEF,sy,s,y,AVG 
+PDEF,sz,s,z,AVG 
+PDEF,si,s,eqv,AVG 
+PDEF,epplx,eppl,x,AVG 
+PDEF,epply,eppl,y,AVG 
+PDEF,epplz, eppl,z,AVG 
+PDEF,eppli,nl,epeq,AVG 
+PDEF,s1,s,1,AVG 
+PAGET,INTAR_,TABL
+*DEL,,PRM_
+!calculation
+PCALC,div,sysi,S1,Si,1,!path умеет совершать операции над полученными величинами - здесь - деление
+PAGET,INTAR_,TABL
+*use,epu,arg2
+*DEL,,PRM_
+PADELE,all   
+*end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!*use,s1si,28,50,nx(gg(2,1)),ny(gg(2,1)),nz(gg(2,1)),nx(gg(2,ng(2,4))),ny(gg(2,ng(2,4))),nz(gg(2,ng(2,4)))
+!*use,s1si,340,50,0,dd,0,s(1),dd,0!построение эпюр (номер этапа, количество точек, x1,y1,z1, x2,y2,z2 )
+!*use,s1si,340,50,0,elr,0,s(1),elr,0
+!*use,s1si,264,50,0,elr,0,7.5,elr,0
+!*use,s1si,829,50,0,74.07,0,7.5,74.07,0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Phylyn's red button
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/POST1  
+set,LL-1,last
+!*  
+/EFACET,1   
+PLNSOL, NL,EPEQ, 0,1.0  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!мультик
+LL1=270
+LL2=283
+ntt=12!50
+!	*do,i,LL1,LL-1,1
+	*do,i,LL1,LL2,1
+		*do,j,1,ntt,1
+		set,i,last
+		*enddo
+	/replot
+	*enddo
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+allsel,all
+EALIVE,ALL ! оживление
+!!!!!!!!!!!!!!!!!!!!!!
+allsel,all
+ESEL,S,LIVE!выбор живых элементов
+ESEL,INVERT,LIVE
+
+
